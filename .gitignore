@@ -1,0 +1,12 @@
+data/HAM10000/images
+data/chestCTData/images
+!data/**/*.py
+
+
+model/
+
+*.pth
+
+!data/chestCTData/chestCTDataloader.py
+
+*.h5
