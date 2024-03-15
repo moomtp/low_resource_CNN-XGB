@@ -159,7 +159,7 @@ def removeLastLayer(model, layer_label):
             new_model = torch.nn.Sequential(*children[:-1])
         return new_model
 
-def calImgFeatureVector(tensor_img_data:torch.Tensor, isRGB:bool=False):
+def calImgFeatureVector(tensor_img_data:torch.Tensor, isRGB:bool):
     """
     功能 : 算出影像的特徵向量
     輸入 : 灰階的tensor影像資料
@@ -169,10 +169,20 @@ def calImgFeatureVector(tensor_img_data:torch.Tensor, isRGB:bool=False):
     # list_of_feature_vectors = []
     # for idx , (data, label) in enumerate():
     #     pass
+
+    # tensor_img_data = tensor_img_data.permute(1,2,0)
     img = tensor_img_data.numpy()
+    img = img.transpose((1,2,0))
+
+    # print(img.shape)
+    # print(type(computeHuMoments(img, isRGB)))
+    # print(computeLbpHistogram(img, isRGB).shape)
+    # print((computeLbpHistogram(img, isRGB=isRGB)).shape)
+    # print(computeColorIndex(img, isRGB=isRGB).shape)
+
     # feature_vector.append(computeHuMoments(img))
     # feature_vector.append(computeLbpHistogram(img))
-    vec = np.concatenate((computeHuMoments(img,isRGB) ,computeLbpHistogram(img, isRGB), computeColorIndex(img, isRGB)))
+    vec = np.concatenate((computeHuMoments(img,isRGB) ,computeLbpHistogram(img, isRGB), computeColorIndex(img, isRGB=isRGB)))
 
     return vec
 

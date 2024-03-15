@@ -48,7 +48,7 @@ def computeHuMoments(image:np.ndarray, isRGB:bool = False):
 def computeColorIndex(image:np.ndarray, num_bins=8, isRGB:bool=False):
     # 转换图像为Lab颜色空间
     if isRGB == False:
-        return None
+        return np.array([])
     lab_image = cv2.cvtColor(image, cv2.COLOR_BGR2Lab)
 
     # 计算图像颜色直方图
@@ -60,6 +60,9 @@ def computeColorIndex(image:np.ndarray, num_bins=8, isRGB:bool=False):
     hist_L = cv2.normalize(hist_L, hist_L).flatten()
     hist_A = cv2.normalize(hist_A, hist_A).flatten()
     hist_B = cv2.normalize(hist_B, hist_B).flatten()
+
+    # print("hsv vector type:")
+    # print(hist_L)
 
     # 合并直方图为单个特征向量
     color_index = np.concatenate((hist_L, hist_A, hist_B))

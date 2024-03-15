@@ -135,9 +135,17 @@ def calBestIterOfXGB( train_features, train_labels, test_features, test_labels, 
                     verbose_eval=False)
 
     print(f"Best iteration: {bst.best_iteration}")
+
+    # cal eval time of XGB
+    start_time = time()
+    bst.predict(dtrain)
+    end_time = time()
+    XGB_eval_time = (end_time - start_time)/len(train_features)
+
     if enable_f1_metric:
-       return bst.best_iteration, evals_result['val']['F1-score'], evals_result['val']['Accuracy']
-    return bst.best_iteration
+      return bst.best_iteration, evals_result['val']['F1-score'], evals_result['val']['Accuracy'], XGB_eval_time
+    else:
+      return bst.best_iteration
 
 def calBestIterOfXGBByF1score( train_features, train_labels, test_features, test_labels):
     """算出什麼時候會overfitting"""
