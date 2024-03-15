@@ -45,8 +45,10 @@ def computeHuMoments(image:np.ndarray, isRGB:bool = False):
 
     return hu_moments
 
-def computeColorIndex(image:np.ndarray, num_bins=8):
+def computeColorIndex(image:np.ndarray, num_bins=8, isRGB:bool=False):
     # 转换图像为Lab颜色空间
+    if isRGB == False:
+        return None
     lab_image = cv2.cvtColor(image, cv2.COLOR_BGR2Lab)
 
     # 计算图像颜色直方图

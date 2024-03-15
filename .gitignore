@@ -10,3 +10,5 @@ model/
 !data/chestCTData/chestCTDataloader.py
 
 *.h5
+
+*.csv

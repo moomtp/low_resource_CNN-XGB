@@ -7,8 +7,16 @@ import csv
 import numpy as np
 import copy
 import torchvision.models as models
+
+# import self define func
+import os
+import sys
+sys.path.append(os.path.abspath('..'))
+sys.path.append(os.path.abspath('.'))
+
 from other_program.custom_model import CustomModel
-from program.helperFunction.imgToFeatureVectorFunctions import computeLbpHistogram, computeHuMoments
+
+from .imgToFeatureVectorFunctions import computeLbpHistogram, computeHuMoments, computeColorIndex
 
 # ==========   pytorch function  =============
 
@@ -151,7 +159,7 @@ def removeLastLayer(model, layer_label):
             new_model = torch.nn.Sequential(*children[:-1])
         return new_model
 
-def calImgFeatureVector(tensor_img_data:torch.Tensor):
+def calImgFeatureVector(tensor_img_data:torch.Tensor, isRGB:bool=False):
     """
     功能 : 算出影像的特徵向量
     輸入 : 灰階的tensor影像資料
@@ -164,7 +172,7 @@ def calImgFeatureVector(tensor_img_data:torch.Tensor):
     img = tensor_img_data.numpy()
     # feature_vector.append(computeHuMoments(img))
     # feature_vector.append(computeLbpHistogram(img))
-    vec = np.concatenate((computeHuMoments(img) ,computeLbpHistogram(img)))
+    vec = np.concatenate((computeHuMoments(img,isRGB) ,computeLbpHistogram(img, isRGB), computeColorIndex(img, isRGB)))
 
     return vec
 
@@ -234,3 +242,4 @@ def addHeader(res: list, head0: str, otherHead: str):
     res = [head] + res
     
     return res
+
