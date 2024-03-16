@@ -183,7 +183,11 @@ def calImgFeatureVector(tensor_img_data:torch.Tensor, isRGB:bool):
     # feature_vector.append(computeHuMoments(img))
     # feature_vector.append(computeLbpHistogram(img))
     vec = np.concatenate((computeHuMoments(img,isRGB) ,computeLbpHistogram(img, isRGB), computeColorIndex(img, isRGB=isRGB)))
-
+    nan_indices = np.where(np.isnan(vec))
+    if (len(nan_indices) > 1):
+        print(f'Indices of NaN values: {list(zip(nan_indices[0]))}')
+        print("NaN ele found error!!")
+        raise ValueError
     return vec
 
 def removeLastLayerV2(model, layer_label=""):

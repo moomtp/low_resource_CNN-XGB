@@ -24,7 +24,7 @@ def computeLbpHistogram(image:np.ndarray, isRGB:bool = False):
 
     return hist[:10]
 
-def computeHuMoments(image:np.ndarray, isRGB:bool = False):
+def computeHuMoments_V0(image:np.ndarray, isRGB:bool = False):
     # 将图像转换为灰度图
     img = image
     if isRGB:
@@ -35,15 +35,63 @@ def computeHuMoments(image:np.ndarray, isRGB:bool = False):
     hu_moments = cv2.HuMoments(moments)
 
     # 将Hu不变矩转换为对数形式
-    hu_moments = -1 * np.sign(hu_moments) * np.log10(np.abs(hu_moments))
+    print(hu_moments)
+    hu_moments = -1 * np.sign(hu_moments)
+
+    nan_indices = np.where(np.isnan(hu_moments))
+    if (len(nan_indices) > 1):
+        print(f'Indices of NaN values: {list(zip(nan_indices[0]))}')
+        # print("NaN ele found error!!")
+        raise ValueError
+
+    hu_moments = np.log10(np.abs(hu_moments))
+    
 
     hu_moments = abs(hu_moments) / 30
+    
 
     hu_moments = [item for subarr in hu_moments for item in subarr]
     
     hu_moments = np.array(hu_moments)
 
     return hu_moments
+
+def computeHuMoments(image: np.ndarray, isRGB: bool = False):
+    # 将图像转换为灰度图
+    img = image
+    if isRGB:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # 计算Hu不变矩
+    moments = cv2.moments(img)
+    hu_moments = cv2.HuMoments(moments)
+
+    # 对Hu不变矩的每个元素应用对数转换
+    for i in range(0, 7):
+        # 避免对 0 或非常接近 0 的值取对数
+        hu_moments[i] = hu_moments[i] if abs(hu_moments[i]) > 1e-10 else 1e-10
+        hu_moments[i] = -1 * np.copysign(1.0, hu_moments[i]) * np.log10(abs(hu_moments[i]))
+
+    # 计算均值和标准差
+    mean = np.mean(hu_moments)
+    std = np.std(hu_moments)
+
+    # 进行 z-score 标准化
+    hu_moments = (hu_moments- mean) / std
+    # 将Hu不变矩展平成一维数组
+    hu_moments = hu_moments.flatten()
+
+
+    nan_indices = np.where(np.isnan(hu_moments))
+    # print(len(nan_indices))
+    if (len(nan_indices) != 1):
+        print(hu_moments)
+        print(f'Indices of NaN values: {list(zip(nan_indices[0]))}')
+        # print("NaN ele found error!!")
+        raise ValueError
+
+    return np.array(hu_moments)
+
 
 def computeColorIndex(image:np.ndarray, num_bins=8, isRGB:bool=False):
     # 转换图像为Lab颜色空间
