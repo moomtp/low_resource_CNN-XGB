@@ -14,6 +14,8 @@ def computeLbpHistogram(image:np.ndarray, isRGB:bool = False):
     img = image
     if isRGB:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    else : 
+        img = image[0]
     lbp = feature.local_binary_pattern(img, 8, 1, method='uniform')
     lbp = lbp.astype(np.uint8)
 
@@ -61,6 +63,8 @@ def computeHuMoments(image: np.ndarray, isRGB: bool = False):
     img = image
     if isRGB:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    else:
+        img = image[0] # only for three channel gray image!!
 
     # 计算Hu不变矩
     moments = cv2.moments(img)
