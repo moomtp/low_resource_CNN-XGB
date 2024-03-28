@@ -60,3 +60,30 @@ class CustomImageDatasetSubfolderType(Dataset):
         if self.transform:
             image = self.transform(image)
         return image, label
+
+# different folder for different dataset type
+class CustomImageDatasetForDiffDatafolder(Dataset):
+    def __init__(self, img_dir, file_to_label_dict, transform=None, enable_gray_scale=False):
+        self.img_dir = img_dir
+        self.file_to_label_dict = file_to_label_dict
+
+        self.transform = transform
+        self.image_files = os.listdir(img_dir)
+
+        self.is_gray_scale = enable_gray_scale
+    
+
+    def __len__(self):
+        return len(self.image_files)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(self.img_dir, self.image_files[idx])
+        if self.is_gray_scale:
+            image = Image.open(img_path).convert('L')
+        else :
+            image = Image.open(img_path).convert('RGB')
+
+        label = self.file_to_label_dict[self.image_files[idx]]
+        if self.transform:
+            image = self.transform(image)
+        return image, label

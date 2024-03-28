@@ -5,6 +5,8 @@ from torchvision import transforms
 import json
 from dataclasses import dataclass, field
 from typing import List
+import matplotlib.pyplot as plt
+import random
 
 # import helperFunction
 import os
@@ -37,12 +39,16 @@ class HAM10000DataProcessor:
         self.dataPreprocess()
 
     #  ======  interface function  ======
-    def returnDataloaders(self):
+    def getDataloaders(self):
         return self.train_dataloader , self.test_dataloader
-    def returnDatasetFilenames(self):
+    def getDatasetFilenames(self):
         return self.train_files , self.test_files
-    def returnFeatureVectorFilename(self):
+    def getFeatureVectorFilename(self):
         return self.feature_vector_file
+    def plotNumsSampleImg(self):
+        # print(len(next(iter(self.train_dataloader))))
+        self.show_random_image(self.train_dataloader)
+        self.show_random_image(self.test_dataloader)
     def getNumClasses(self):
         return self.num_classes
     
@@ -92,3 +98,21 @@ class HAM10000DataProcessor:
 
         test_dataset = CustomImageDataset(img_dir=dataset_path,file_to_label_dict={file: filename_to_label_dict[file] for file in self.test_files}, transform=self.transform)
         self.test_dataloader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+
+    def show_random_image(self, dataloader):
+        # 从dataloader中迭代获取一个批次的数据
+        images, labels = next(iter(dataloader))
+        
+        # 随机选择一个图像
+        idx = random.randint(0, len(images) - 1)
+        image = images[idx]
+        
+        # 将图像的维度从(C, H, W)变换为(H, W, C)以适配matplotlib的显示要求
+        # 注意：这个转换适用于单通道（例如灰度图像）和三通道（例如RGB图像）的情况
+        # 如果图像是归一化的，可能还需要逆归一化步骤
+        image = image.permute(1, 2, 0)
+        
+        # 使用matplotlib显示图像
+        plt.imshow(image)
+        plt.title(f'Label: {labels[idx]}')
+        plt.show()

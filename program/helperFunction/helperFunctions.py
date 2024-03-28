@@ -7,6 +7,8 @@ import csv
 import numpy as np
 import copy
 import torchvision.models as models
+from typing import Dict , List
+import time
 
 # import self define func
 import os
@@ -236,6 +238,39 @@ def calDetailModelLayersNum(model):
         total_layers += 1
     print("總層數為: " + str(total_layers) + "層")
     return total_layers
+    
+
+def calModelEvalTime(models_list:List, device:str, isRGB:bool=True )-> Dict: 
+    results = {"eval_time" : [], "model_name" : []}
+    # ele in result :  (model_eval_time , "layer" + idx)
+
+    # 10000 for error rate 8%, 100000 is better
+    evaluations_per_model = 100000 
+    if isRGB:
+        dummy_tensor = torch.rand([1, 3, 224, 224]).to(device)
+    else :
+        dummy_tensor = torch.rand([1, 1, 224, 224]).to(device)
+
+    for model, model_name in models_list:
+        model.eval()  # 將模型設置為評估模式
+        times = []
+
+        for _ in range(evaluations_per_model):
+            try:
+                start = time.perf_counter()
+                with torch.no_grad():  # 在這裡不計算梯度
+                        _ = model(dummy_tensor)
+                end = time.perf_counter()
+            except:
+                print("mat error!")
+                break
+            times.append(end - start)
+
+        average_time = sum(times) / evaluations_per_model
+        results["eval_time"].append(average_time)
+        results["model_name"].append(model_name)
+
+    return results
 
 # =============  other function  =============
 
