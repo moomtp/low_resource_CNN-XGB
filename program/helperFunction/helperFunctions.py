@@ -56,8 +56,11 @@ def dataloaderToFeatureData(model: nn.modules, dataloader, device:str):
         features.extend(output.numpy().squeeze())
         # features.extend(output.numpy().unsqueeze())
         labels.extend(label.numpy())
+
+        assert len(features) == len(labels)
     # flatten
     print("feature size is :{}".format(len(features)))
+    print("label size is :{}".format(len(labels)))
     return np.array(features), np.array(labels)
 
 

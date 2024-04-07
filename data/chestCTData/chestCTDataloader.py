@@ -37,11 +37,11 @@ class ChestCTDataProcessor:
         self.dataPreprocess()
 
     #  ======  interface function  ======
-    def returnDataloaders(self):
+    def getDataloaders(self):
         return self.train_dataloader , self.test_dataloader
-    def returnDatasetFilenames(self):
+    def getDatasetFilenames(self):
         return None , None
-    def returnFeatureVectorFilename(self):
+    def getFeatureVectorFilename(self):
         return self.feature_vector_file
     def getNumClasses(self):
         return self.num_classes

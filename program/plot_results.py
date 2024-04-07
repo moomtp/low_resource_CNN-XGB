@@ -39,6 +39,8 @@ def get_baseline_acc_score(CNN_model_name, dataset_name):
         ("chest CT", "vgg16"): 0.7689,
         ("skin cancer", "resnet18"): 0.8440, # 0.8440
         ("skin cancer", "vgg16"): 0.8299,
+        ("ocularDisease", "resnet18"): 0.6226,
+        ("ocularDisease", "vgg16"): 0.6492,
     }
 
     # 使用get方法從字典中獲取準確率，如果找不到匹配的鍵，則返回一個預設值
@@ -81,7 +83,8 @@ def plot_label_and_save(file_name:str):
 if __name__ == "__main__":
     # var setting
     # dataset_name = "chest CT"
-    dataset_name = "skin cancer"
+    # dataset_name = "skin cancer"
+    dataset_name = "ocularDisease"
 
     # CNN_model_name = 'resnet18'
     CNN_model_name= 'vgg16'
@@ -122,32 +125,36 @@ if __name__ == "__main__":
 
     # # plot csv data 
     # plt.figure(figsize=(8, 6), dpi=150)
-    # plt.plot(df1['model_name'], df1['acc'], color="orange",label=res_files[0].split('_model')[0][2:])  # 绘制折线图
+    # min_col_len = min(len(df1['acc']), len(df2['acc']), len(df3['acc']))
+    # plt.plot(df1['model_name'][:min_col_len], df1['acc'][:min_col_len], color="orange",label=res_files[0].split('_model')[0][2:])  # 绘制折线图
     # plot_max_val(df1)
-    # plt.plot(df2['model_name'], df2['acc'], color="green",label=res_files[1].split('_model')[0][2:])  # 绘制折线图
+    # plt.plot(df2['model_name'][:min_col_len], df2['acc'][:min_col_len], color="green",label=res_files[1].split('_model')[0][2:])  # 绘制折线图
     # plot_max_val(df2)
-    # plt.plot(df3['model_name'], df3['acc'], color="blue",label=res_files[2].split('_model')[0][2:])  # 绘制折线图
+    # plt.plot(df3['model_name'][:min_col_len], df3['acc'][:min_col_len], color="blue",label=res_files[2].split('_model')[0][2:])  # 绘制折线图
     # plot_max_val(df3)
 
     # setting dCNN only acc
-    plt.axhline(y=baseline_acc, color='red', linestyle='--')
-    plt.text(9, baseline_acc, f'{baseline_acc:.4f}', color='red', horizontalalignment='right', verticalalignment='bottom')
-    # plt.ylim(bottom=50)
-    plot_label_and_save(CNN_model_name + "_" + dataset_name + "_three_model.png")
+    # plt.axhline(y=baseline_acc, color='red', linestyle='--')
+    # plt.text(9, baseline_acc, f'{baseline_acc:.4f}', color='red', horizontalalignment='right', verticalalignment='bottom')
+    # plot_label_and_save(CNN_model_name + "_" + dataset_name + "_three_model.png")
 
 
     # # -------  plot three res (w/ MM & w/o MM)  ------- 
     # plt.figure(1,figsize=(10, 6), dpi=150)
     # min_col_len = min(len(df1['acc']),len(mm_df1['acc']))
     # plt.plot(df1['model_name'][:min_col_len], df1['acc'][:min_col_len], color="orange",label=res_files[0].split('_model')[0][2:])  # 绘制折线图
+    # plot_max_val(df1)
     # plt.plot(mm_df1['model_name'][:min_col_len], mm_df1['acc'][:min_col_len], color="yellow",label=res_files[0].split('_model')[0][2:]+"_MM")  # 绘制折线图
+    # plot_max_val(mm_df1)
     # plot_label_and_save("Linear.png")
     
 
     # plt.figure(2,figsize=(10, 6), dpi=150)
     # min_col_len = min(len(df2['acc']),len(mm_df2['acc']))
     # plt.plot(df2['model_name'][:min_col_len], df2['acc'][:min_col_len], color="green",label=res_files[1].split('_model')[0][2:])  # 绘制折线图
+    # plot_max_val(df2)
     # plt.plot(mm_df2['model_name'][:min_col_len], mm_df2['acc'][:min_col_len], color="#90EE90",label=res_files[1].split('_model')[0][2:]+"_MM")  # 绘制折线图
+    # plot_max_val(mm_df2)
     # plot_label_and_save("RF.png")
 
     plt.figure(3,figsize=(10, 6), dpi=150)
@@ -156,10 +163,12 @@ if __name__ == "__main__":
     plot_max_val(df3)
     plt.plot(mm_df3['model_name'][:min_col_len], mm_df3['acc'][:min_col_len], color="cyan",label=res_files[2].split('_model')[0][2:]+"_MM")  # 绘制折线图
     plot_max_val(mm_df3)
+
     # plot_label_and_save("XGB.png")
 
     plt.axhline(y=baseline_acc, color='red', linestyle='--')
     plt.text(9, baseline_acc, f'{baseline_acc:.4f} (vgg)', color='red', horizontalalignment='right', verticalalignment='bottom')
-    plt.axhline(y=0.8440, color='magenta', linestyle='--')
-    plt.text(9, 0.8440, f'{0.8440:.4f} (resnet)', color='magenta', horizontalalignment='right', verticalalignment='bottom')
+    resnet_acc = get_baseline_acc_score('resnet18',dataset_name)
+    plt.axhline(y=resnet_acc, color='magenta', linestyle='--')
+    plt.text(9, resnet_acc , f'{resnet_acc:.4f} (resnet)', color='magenta', horizontalalignment='right', verticalalignment='bottom')
     plot_label_and_save("XGB.png")
