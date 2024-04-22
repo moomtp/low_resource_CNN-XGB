@@ -107,20 +107,14 @@ if __name__ == "__main__":
     df1 = pd.read_csv(res_files[0])
     print("df1 is :" + res_files[0])
     mm_df1 = pd.read_csv(mm_res_files[0])
-    df1["acc"] = df1['acc'] - 0.07
-    mm_df1["acc"] = mm_df1['acc'] - 0.07
 
     df2 = pd.read_csv(res_files[1])
     print("df2 is :" + res_files[1])
     mm_df2 = pd.read_csv(mm_res_files[1])
-    df2["acc"] = df2['acc'] - 0.015
-    mm_df2["acc"] = mm_df2['acc'] - 0.015
 
     df3 = pd.read_csv(res_files[2])
     print("df3 is :" + res_files[2])
     mm_df3 = pd.read_csv(mm_res_files[2])
-    df3["acc"] = df3['acc'] + 0.005
-    mm_df3["acc"] = mm_df3['acc'] + 0.005
 
 
     # # plot csv data 

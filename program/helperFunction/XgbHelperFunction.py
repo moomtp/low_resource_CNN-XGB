@@ -1,4 +1,4 @@
-from time import time
+import time
 from sklearn.metrics import mean_absolute_error
 from sklearn.metrics import mean_squared_error
 import pandas as pd
@@ -7,6 +7,7 @@ from .helperFunctions import dataloaderToFeatureData
 from sklearn.metrics import accuracy_score, f1_score , log_loss
 import xgboost as xgb
 import numpy as np
+import json
 import torch
 
 
@@ -53,6 +54,75 @@ def train_predict(clf, X_train, y_train, X_test, y_test , evalByMMSE = False):
 #     for idx,feature in enumerate(train_features):
 #         feature = np.concatenate((feature , np.array(train_feature_vectors[idx])))
 
+
+
+
+# ============主要的計算function====================
+def calBestIterOfXGB(train_features, train_labels, test_features, test_labels, device, enable_f1_metric=True, model_output_path:str=None):
+    """算出什麼時候會overfitting"""
+    dtrain = xgb.DMatrix(train_features, label=train_labels)
+    dval = xgb.DMatrix(test_features, label=test_labels)
+
+    # 设置参数，注意要更改 'objective' 为多分类的目标函数
+    num_class = len(np.unique(train_labels))  # 获取类别数
+
+
+    params = {'eval_metric': 'mlogloss',
+              'objective': 'multi:softprob',
+              'num_class': num_class,
+              'device':device,
+              'verbosity':2 # 1 : none, 2 : info, 3 : debugg
+              } 
+
+
+
+    evals_result = {}
+    save_best_model_callback = SaveBestModel(model_output_path, "mlogloss")
+    bst = xgb.train(params, dtrain, num_boost_round=2, 
+                    evals=[(dtrain, 'train'), (dval, 'val')],
+                    custom_metric=custom_eval, evals_result=evals_result, 
+                    early_stopping_rounds=20,
+                    # callbacks=[lambda env: save_best_model(env.model, model_output_path, best_score)],
+                    callbacks=[save_best_model_callback],
+                    verbose_eval=False)
+    # 保存訓練好的模型
+    # bst.save_model(model_output_path + ".json")
+
+    print(f"Best iteration: {bst.best_iteration}")
+
+    with open('evals_result.json', 'w') as f:
+      json.dump(evals_result, f)
+
+    evaluations_per_model = 10000
+    times = []
+    # cal eval time of XGB
+    for _ in range(evaluations_per_model):
+      start_time = time.perf_counter()
+      res = bst.predict(dtrain)
+      end_time = time.perf_counter()
+      times.append(end_time - start_time)
+
+    average_time = sum(times) / evaluations_per_model
+    print("res's len : {}".format(len(res)))
+    print("feature's len : {}".format(len(train_features)))
+    print("跑訓練資料的時間:{}".format(average_time/len(train_features)))
+
+    times = []
+    for _ in range(evaluations_per_model):
+      start_time = time.perf_counter()
+      res = bst.predict(dval)
+      end_time = time.perf_counter()
+      times.append(end_time - start_time)
+
+    average_time = sum(times) / evaluations_per_model
+    print("res's len : {}".format(len(res)))
+    print("feature's len : {}".format(len(test_features)))
+    print("跑測試資料的時間:{}".format(average_time/len(test_features)))
+
+    if enable_f1_metric:
+      return bst.best_iteration, evals_result['val']['F1-score'], evals_result['val']['Accuracy'], average_time
+    else:
+      return bst.best_iteration
 
 # =========  sub function  =============
 
@@ -114,38 +184,16 @@ def custom_eval(preds, dtrain:xgb.DMatrix, enable_f1_metric=True):
       return [('Accuracy', -acc), ('F1-score', -f1), ('mlogloss', mlogloss)] # 可以更換成這個，但early stop會變成f1 score
 
     return [('mlogloss', mlogloss)]  # 計算出mlogloss並做為評估early stop 的標準
-    # return [('Accuracy', acc), ('F1-score', f1), ('mlogloss', mlogloss)] # 可以更換成這個，但early stop會變成f1 score
-
-def calBestIterOfXGB( train_features, train_labels, test_features, test_labels, enable_f1_metric=True):
-    """算出什麼時候會overfitting"""
-    dtrain = xgb.DMatrix(train_features, label=train_labels)
-    dval = xgb.DMatrix(test_features, label=test_labels)
-
-    # 设置参数，注意要更改 'objective' 为多分类的目标函数
-    num_class = len(np.unique(train_labels))  # 获取类别数
-    params = {'eval_metric': 'mlogloss', 'objective': 'multi:softprob', 'num_class': num_class}
 
 
 
-    evals_result = {}
-    bst = xgb.train(params, dtrain, num_boost_round=105, 
-                    evals=[(dtrain, 'train'), (dval, 'val')],
-                    custom_metric=custom_eval, evals_result=evals_result, 
-                    early_stopping_rounds=20,
-                    verbose_eval=False)
 
-    print(f"Best iteration: {bst.best_iteration}")
+def save_best_model(bst, filepath, current_best):
+    if bst.best_score < current_best:
+        current_best = bst.best_score
+        bst.save_model(filepath.format(bst.best_iteration))
+    return current_best
 
-    # cal eval time of XGB
-    start_time = time()
-    bst.predict(dtrain)
-    end_time = time()
-    XGB_eval_time = (end_time - start_time)/len(train_features)
-
-    if enable_f1_metric:
-      return bst.best_iteration, evals_result['val']['F1-score'], evals_result['val']['Accuracy'], XGB_eval_time
-    else:
-      return bst.best_iteration
 
 def calBestIterOfXGBByF1score( train_features, train_labels, test_features, test_labels):
     """算出什麼時候會overfitting"""
@@ -162,8 +210,30 @@ def calBestIterOfXGBByF1score( train_features, train_labels, test_features, test
     bst = xgb.train(params, dtrain, num_boost_round=105, 
                     evals=[(dtrain, 'train'), (dval, 'val')],
                     custom_metric=custom_eval, evals_result=evals_result, 
-                    early_stopping_rounds=10,
+                    early_stopping_rounds=100,
                     verbose_eval=False)
 
     print(f"Best iteration: {bst.best_iteration}")
     return bst.best_iteration
+
+
+# class for xgb callback
+class SaveBestModel(xgb.callback.TrainingCallback):
+    def __init__(self, filepath, monitor_metric='mlogloss'):
+        super().__init__()
+        self.filepath = filepath
+        self.best_score = float('inf')
+        self.monitor_metric = monitor_metric
+
+    def after_iteration(self, model, epoch, evals_log):
+        # 使用正确的数据集和度量标准
+        if 'val' in evals_log and self.monitor_metric in evals_log['val']:
+            current_score = evals_log['val'][self.monitor_metric][-1]
+            # print(evals_log['val'][self.monitor_metric])
+            # print("current score is : {}".format(current_score))
+            # 假设我们是在追求更高的评分是更好的场景（如AUC、准确率）
+            # 如果你追踪的是损失函数，应该使用current_score < self.best_score
+            if current_score < self.best_score:
+                self.best_score = current_score
+                model.save_model(self.filepath + '.json')  # epoch + 1 because epochs are zero-indexed
+        return False  # Return False to continue training
