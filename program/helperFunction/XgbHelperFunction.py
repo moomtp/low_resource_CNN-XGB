@@ -191,14 +191,14 @@ def calFPGAFormatXGB(train_features, train_labels, test_features, test_labels, d
     # feature_indices = {feature: train_features.columns.get_loc(feature) for feature in top_n_features}
     # print("Selected features and their original indices:", feature_indices)
 
-    # TODO : 重新訓練一次model，限制樹的數量與node的數量
-    # 限制子樹最大深度
-    params['max_depth'] =  3
+    # 重新訓練一次model，限制樹的數量與node的數量
+    # 限制子樹最大深度(不含leaf)
+    params['max_depth'] =  6
 
     train_features = [feature.astype(np.float16) for feature in train_features]
 
     FPGA_evals_result = {}
-    bst = xgb.train(params, dtrain_top_features, num_boost_round=5, 
+    bst = xgb.train(params, dtrain_top_features, num_boost_round=100, 
                     evals=[(dtrain_top_features, 'train'), (dval_top_features, 'val')],
                     custom_metric=custom_eval, evals_result=FPGA_evals_result, 
                     early_stopping_rounds=20,
@@ -207,6 +207,7 @@ def calFPGAFormatXGB(train_features, train_labels, test_features, test_labels, d
                     verbose_eval=False)
     # 保存訓練好的模型
     bst.save_model(model_output_path +  "_FPGA.json")
+    bst.dump_model(model_output_path +  "_dFPGA.json", dump_format='json')
 
     f_iter = bst.best_iteration
 
