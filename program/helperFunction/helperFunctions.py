@@ -167,7 +167,7 @@ def removeLastLayer(model, layer_label):
 def calImgFeatureVector(tensor_img_data:torch.Tensor, isRGB:bool):
     """
     功能 : 算出影像的特徵向量
-    輸入 : 灰階的tensor影像資料
+    輸入 : tensor影像資料
     輸出 : LBP與hu_invariant 的vector
     """
     # create loop

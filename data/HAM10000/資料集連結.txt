@@ -1,0 +1,3 @@
+https://www.kaggle.com/datasets/surajghuwalewala/ham1000-segmentation-and-classification
+
+把裡面的image跟GroundTruth.csv解壓縮出來即可

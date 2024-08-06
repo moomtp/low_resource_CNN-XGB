@@ -1,9 +1,22 @@
 data/HAM10000/images
 data/chestCTData/images
+data/ocularDisease
 !data/**/*.py
+!data/*/*.py
 
 
 model/
+results/
+document/
+
+hardwareSrc/sim/*vhd
+!hardwareSrc/sim/skin_*.vhd
+!hardwareSrc/sim/ocularDisease_*.vhd
+
+不要的/
+
+*.7z
+*.zip
 
 *.pth
 

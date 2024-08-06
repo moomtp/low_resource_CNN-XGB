@@ -164,8 +164,10 @@ def calFPGAFormatXGB(train_features, train_labels, test_features, test_labels, d
     #  top_n_features = ['f4', 'f1', 'f0', 'f5', 'f6', 'f3', 'f2']
     top_n_features = [feature for feature, _ in sorted_importance[:255]] 
     top_n_features_and_score = [(feature, score) for feature, score in sorted_importance[:255]] 
-    print(top_n_features)
-    print(top_n_features_and_score)
+    
+    print(f"feature len is : {len(train_features[0])}")
+    print(f"top n feature : {top_n_features}")
+    print(f"top n feature w/ score : {top_n_features_and_score}")
     # 重構dtrain 跟 dval
     # TODO assert 每筆feautre數量相同?
     num_features = len(train_features[0])
@@ -198,7 +200,7 @@ def calFPGAFormatXGB(train_features, train_labels, test_features, test_labels, d
     train_features = [feature.astype(np.float16) for feature in train_features]
 
     FPGA_evals_result = {}
-    bst = xgb.train(params, dtrain_top_features, num_boost_round=100, 
+    bst = xgb.train(params, dtrain_top_features, num_boost_round=127, 
                     evals=[(dtrain_top_features, 'train'), (dval_top_features, 'val')],
                     custom_metric=custom_eval, evals_result=FPGA_evals_result, 
                     early_stopping_rounds=20,
@@ -323,7 +325,7 @@ def cal_xgb_eval_time(bst : xgb.Booster, matrix_data : xgb.DMatrix, evaluation_n
     print("feature's len : {}".format(matrix_data.num_row()))
     print("跑測試資料的時間:{}".format(average_time/matrix_data.num_row()))
 
-    return average_time
+    return average_time / matrix_data.num_row()
 
 
 def save_best_model(bst, filepath, current_best):
