@@ -10,7 +10,7 @@
 # Usage 
 
 1. 從 Kaggle 下載數據集，將相關數據集解壓縮到 ./data 資料夾中 <br>
-[皮膚癌數據集 (HAM10000)](https://www.kaggle.com/datasets/surajghuwalewala/ham1000-segmentation-and-classification)
+[皮膚癌數據集 (HAM10000)](https://www.kaggle.com/datasets/surajghuwalewala/ham1000-segmentation-and-classification) <br>
 [眼病數據集](https://www.kaggle.com/datasets/andrewmvd/ocular-disease-recognition-odir5k)
 
 2. 使用 program/conv.ipynb 訓練 CNN 模型
@@ -29,7 +29,7 @@
 在vgg結合XGBoost的多模態實驗中，使用多模態後的混合模型能有較好的辨識率與F1-score，讓模型能在使用較低資源的設計下一樣能夠保有原本模型的性能 <br>
 
 
-![](pic/result2.jpg)
+![](pic/result2.png)
 
 
 # file dir
@@ -53,5 +53,5 @@
 └── results  // experiment results
 
 # Reference
-1. XGB hardware realization tool : github.com/moomtp/XGBoost_tree_on_VHDL.git  <br>
+1. [XGB hardware realization tool](github.com/moomtp/XGBoost_tree_on_VHDL.git)  <br>
 2. other CNN-XGB relative reaseach, see detail on ./reference.txt
