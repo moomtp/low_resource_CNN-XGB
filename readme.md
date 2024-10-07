@@ -1,5 +1,5 @@
 
-這個專案主要研究如何在CNN-XGB模型的效率與性能之間找到最佳化的結果
+This project focuses on how to find optimized results between the efficiency and performance of the CNN-XGB model
 
 # Intorduction
 如下圖所示，本專案主要研究的方式是將CNN-XGB模型中CNN的部分進行剪枝，並使用傳統影像演算法算出影像的特徵，透過多模態的方式讓整體模型的性能不會下降太多
