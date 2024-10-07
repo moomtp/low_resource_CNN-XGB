@@ -53,5 +53,6 @@ This project focuses on how to find optimized results between the efficiency and
 └── results  // experiment results
 
 # Reference
-1. [XGB hardware realization tool](github.com/moomtp/XGBoost_tree_on_VHDL)  <br>
+1. [XGB hardware realization tool](github.com/moomtp/XGBoost_tree_on_VHDL)
+<br>
 2. other CNN-XGB relative reaseach, see detail on ./reference.txt
